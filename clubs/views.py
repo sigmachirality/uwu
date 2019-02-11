@@ -4,6 +4,11 @@ from django.core import serializers
 
 from .models import Club, Member
 
+# Route implementations
+
+def index(request):
+    return render(request, 'index.html')
+
 def get_or_create_club(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -20,7 +25,13 @@ def get_or_create_club(request):
                 return JsonResponse({
                     "success": False,
                     "error": "Parameter \'" + param + "\' must not be blank!"
-                })
+                }, status=400)
+
+        if Clubs.objects.filter(name=name).exists():
+            return JsonResponse({
+                "success": False,
+                "error": "Club with this name already exists!"
+            }, status=409)
 
         Club.objects.create(name=name, description=description\
             , quality=quality, time_commitment = time_commitment, fun = fun)
@@ -45,13 +56,13 @@ def get_or_create_member(request):
             return JsonResponse({
                 "success": False,
                 "error": "Member name must not be empty!"
-            })
+            }, status=400)
 
         if Member.objects.filter(name=name).exists():
             return JsonResponse({
                 "success": False,
                 "error": "Member with this name already exists!"
-            })
+            }, status=409)
 
         Member.objects.create(name=name)
         return JsonResponse({
@@ -77,13 +88,13 @@ def update_club_ranking(request):
                 return JsonResponse({
                     "success": False,
                     "error": "Parameter \'" + param + "\' must not be blank!"
-                })
+                }, status=400)
 
         if not Club.objects.filter(id=id).exists():
             return JsonResponse({
                 "success": False,
                 "error": "No club with the given id exists!"
-            })
+            }, status=404)
     
         clubToUpdate = Club.objects.get(id=id)
         clubToUpdate.quality = quality

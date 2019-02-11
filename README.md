@@ -1,45 +1,48 @@
-# Server Challenge: Spring '19
+# Penn Labs: Backend Technical Challenge S19
 
-Welcome to the Penn Labs backend challenge!
+## How to run
 
-## About The Challenge
+1. Clone this project.
+2. Install Python3 and run '.pip install django', if necessary.
+3. Run './manage.py makemigrations' and './manage.py migrate', if necessary.
+4. Run './manage.py runserver'.
 
-We want you to create a project named Penn Club Review, a site where students can share information clubs and rank them. Treat this assignment as if there were other developers who work on the same codebase, and that the code will potentially be in production for a long period of time.
+## Notes
 
-Your task is to create various GET/POST endpoints that return responses in JSON format. If you have additional time, there are bonus challenges that you can complete.
+I edited the provided template Django server instead of opting to write a server in either Flask or Node.js. I've left the db file created during my testing in the repo for your convenience. This means that clubs and members tables should already include several entries, so GET and POST requests should return meaningful data on all required routes.
 
-## What We're Looking For
+I reckon that mystery_function returns the average quality rating across all Clubs in the db. I'm a bit unsure how the __getattr__ function operates though - I assume that it gets the attribute, but my research indicates that it's usually only called if the attribute of the object doesn't exist?
 
-This mini project will help us get a better understanding of your technical abilities and your abilities in writing maintainable code. We provide you with initial code in order to test your abilities to read code and understand functionality while fixing bugs and implementing new features.
+Member and comment functionality is theoretically supported by how the models are currently setup, but no routes have been made implementing such functionality.
 
-We highly recommend completing the challenge in Django, since many of our server backends are written using this framework. If you are not comfortable using Django, Flask or a Node.js server also suffice, but these will not have existing code for you to work off of. This challenge will primarily be graded by overall correctness and project design. *It is okay if not all of your features work.*
+## API Docs
 
-[Getting started with Django | Django](https://www.djangoproject.com/start/)
+### Models
+- Club
+    - name - 'Text'
+    - description - 'Text'
+    - quality - 'Decimal'
+    - time_commitment - 'Decimal'
+    - fun - 'Decimal'
 
-[Quickstart - Flask 1.0.2 documentation](http://flask.pocoo.org/docs/1.0/quickstart/)
+- Member
+    - name - 'Text'
+    - clubs - 'ManyToMany \w Club'
 
-[Getting Started Guide | Node.js](https://nodejs.org/en/docs/guides/getting-started-guide/)
+- Comment
+    - content - 'Text'
+    - commenter - 'FK - Member'
+    - clubs - 'FK - Club'
 
-# The Challenge
+### Endpoints
+All POST routes return a JSON indicating whether the operation was successful, alongside an applicable HTML response code.
 
-Penn Labs is building PennClubReview - a platform to view all the extracurricular activities available at the school. This is a project developed and maintained by at least three other developers at Penn Labs.
+- 'GET /api/clubs/' - returns a list of clubs in JSON format, with name, id, description, quality, time_commitment, fun, members, and comments fields.
 
-[ezwang/wow](https://github.com/ezwang/wow)
+- 'POST /api/clubs/' - creates a new club using information from parameters. Gracefully handles missing parameters and conflicts with existing clubs.
 
-1. **Create additional database models and fields** in order to store all of the information that you will need to display to the user.
-    1. You will need to store club objects, with each club having a name, description, and three rating factors: quality, time commitment, and fun. The factors should be *decimal numbers* (ex: 3.5 is a valid rating). The person who initially wrote the code assumed that we would be using integers, but we're sure that you should be able to fix this.
-    2. Clubs can have comments and members. Members consist of a name and a rank (both text fields). Comments consist of a text field and are linked to an individual member. In our implementation, club members submit comments about clubs that they are in.
-2. **Create a route at** `GET /api/clubs` that returns a list of clubs in JSON format, with the name, rating, and description.
-    1. Bonus: Also return a list of comments and members in the JSON response.
-3. **Create a route at** `POST /api/clubs` that creates a new club, with its club information as parameters in the request body. New clubs should be returned in subsequent call of `GET /api/clubs`.
-4. **Create a route at** `POST /api/rankings` that accepts three ratings and a club id and updates the club to have the given ratings.
-5. **Fix the route** `POST /api/members` to gracefully handle the condition when an existing member with the specified name already exists. 
-6. **Decipher** the `mystery_function`  in `views.py` and rewrite the code to be more efficient and clear.
+- 'POST /api/rankings/' - accepts three ratings and the club id and updates the club with said ratings. Gracefully handles the case where a club with the given club id does not exist and the case where there are missing parameters.
 
-## Bonus Challenges
+- 'POST /api/members/' - accepts a name parameter and adds a new member with said name. Gracefully handles the case where a member with the given name already exists and the case where there are missing parameters.
 
-1. Write a frontend with React.js that can use this API to list and create clubs. Place the files associated with the frontend in a `frontend` folder.
-
-[Tutorial: Intro to React - React](https://reactjs.org/tutorial/tutorial.html)
-
-[AJAX and APIs - React](https://reactjs.org/docs/faq-ajax.html)
+- 'POST /api/mystery/' - returns the average quality across all Clubs. 
