@@ -21,6 +21,8 @@ from clubs import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/clubs/', views.get_or_create_club),
+    path('api/rankings/', views.update_club_ranking),
     path('api/members/', views.get_or_create_member),
     path('api/mystery/', views.mystery_function),
 ]

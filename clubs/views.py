@@ -1,13 +1,45 @@
-import base64  # lol
-
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.core import serializers
 
 from .models import Club, Member
 
+#TODO: Add validations? (Maybe add them into frontend instead?)
+def get_or_create_club(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+
+        quality = request.POST.get("quality")
+        time_commitment = request.POST.get("time_commitment")
+        fun = request.POST.get("fun")
+
+        parameters = ["name", "description", "quality", "time_commitment"\
+            , "fun"]
+        for param in parameters:
+            if not request.POST.get(param):
+                return JsonResponse({
+                    "success": False,
+                    "error": "Parameter \'" + param + "\' must not be blank!"
+                })
+
+        Club.objects.create(name=name, description=description\
+            , quality=quality, time_commitment = time_commitment, fun = fun)
+
+        return JsonResponse({
+            "success": True
+        })
+    else:
+        clubSet = Club.objects.all().values('name', 'id', 'quality'\
+            , 'time_commitment', 'fun', 'description', 'members', 'comments')
+        clubJson = JsonResponse({
+            "clubs": list(clubSet)
+        })
+        return clubJson
 
 def get_or_create_member(request):
     if request.method == "POST":
+        print(request.POST)
         name = request.POST.get("name")
 
         if not name:
@@ -16,34 +48,68 @@ def get_or_create_member(request):
                 "error": "Member name must not be empty!"
             })
 
-        Member.objects.create(name=name)
+        if Member.objects.filter(name=name).exists():
+            return JsonResponse({
+                "success": False,
+                "error": "Member with this name already exists!"
+            })
 
+        Member.objects.create(name=name)
         return JsonResponse({
             "success": True
         })
     else:
+        members = list(Member.objects.all().values_list("name", flat=True))
         return JsonResponse({
-            "members": Member.objects.all().values_list("name", flat=True)
+            "members": members
         })
 
+#TODO: Add validations?
+def update_club_ranking(request):
+    if request.method == "POST":
+        id = request.POST.get("clubid")
+
+        quality = request.POST.get("quality")
+        time_commitment = request.POST.get("time_commitment")
+        fun = request.POST.get("fun")
+
+        parameters = ["clubid", "quality", "time_commitment", "fun"]
+        for param in parameters:
+            if not request.POST.get(param):
+                return JsonResponse({
+                    "success": False,
+                    "error": "Parameter \'" + param + "\' must not be blank!"
+                })
+
+        if ! Club.objects.filter(id=id).exists():
+            return JsonResponse({
+                "success": False,
+                "error": "No club with the given id exists!"
+            })
+    
+        clubToUpdate = Club.objects.get(id=id)
+        clubToUpdate.quality = quality
+        clubToUpdate.time_commitment = time_commitment
+        clubToUpdate.fun = fun
+        clubToUpdate.save()
+
+        return JsonResponse({
+                "success": True
+            })
 
 def mystery_function(request):
-    whee = Club
-    abc = 10
-    hhh = 0
-    huh = '\x6f\x62\x6a\x65\x63\x74\x73'
+    #We stray further from god's light everyday
+    return average_quality(request)
 
-    for ghi in getattr(whee, huh).all():
-        abc = abc + ghi.__getattr__("".join(reversed("y\x74ilau\x71")))
-        hhh += 1
+def average_quality(request): 
+    allClubs = Club.objects.all()
 
-    hhh += whee.objects.all().count()
-    lav = base64.b64decode(b"dmFs").decode("utf-8")
-
-    try:
-        wow = {}
-        wow.__setitem__(lav, abc / hhh * 2 - 20 / hhh)
-    except ZeroDivisionError:
-        wow = {lav: 0}
-
-    return JsonResponse(wow)
+    if allClubs.exists():
+        qualitySum = 0
+        for club in allClubs:
+            qualitySum += club.quality
+        json = { "val": qualitySum / allClubs.count() }
+    else:
+        json = { "val": 0 }
+    
+    return JsonResponse(json)
