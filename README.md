@@ -9,9 +9,9 @@
 
 ## Notes
 
-I edited the provided template Django server instead of opting to write a server in either Flask or Node.js. I've left the db file created during my testing in the repo for your convenience. This means that clubs and members tables should already include several entries, so GET and POST requests should return meaningful data on all required routes.
+I edited the provided template Django server instead of opting to write a server in either Flask or Node.js. I've left the db file created during my testing in the repo for your convenience. This means that clubs and members tables should already include several entries on runtime, so GET and POST requests should return meaningful data on all required routes.
 
-I reckon that mystery_function returns the average quality rating across all Clubs in the db. I'm a bit unsure how the __getattr__ function operates though - I assume that it gets the attribute, but my research indicates that it's usually only called if the attribute of the object doesn't exist?
+I reckon that mystery_function returns the average quality rating across all Clubs in the db. I'm a bit unsure how the __ getattr __ function operates though - I assume that it gets the attribute, but my research indicates that it's usually only called if the attribute of the object doesn't exist?
 
 Member and comment functionality is theoretically supported by how the models are currently setup, but no routes have been made implementing such functionality.
 
