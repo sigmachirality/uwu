@@ -4,7 +4,6 @@ from django.core import serializers
 
 from .models import Club, Member
 
-#TODO: Add validations? (Maybe add them into frontend instead?)
 def get_or_create_club(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -64,7 +63,6 @@ def get_or_create_member(request):
             "members": members
         })
 
-#TODO: Add validations?
 def update_club_ranking(request):
     if request.method == "POST":
         id = request.POST.get("clubid")
@@ -81,7 +79,7 @@ def update_club_ranking(request):
                     "error": "Parameter \'" + param + "\' must not be blank!"
                 })
 
-        if ! Club.objects.filter(id=id).exists():
+        if not Club.objects.filter(id=id).exists():
             return JsonResponse({
                 "success": False,
                 "error": "No club with the given id exists!"
@@ -99,9 +97,9 @@ def update_club_ranking(request):
 
 def mystery_function(request):
     #We stray further from god's light everyday
-    return average_quality(request)
+    return average_club_quality(request)
 
-def average_quality(request): 
+def average_club_quality(request): 
     allClubs = Club.objects.all()
 
     if allClubs.exists():
